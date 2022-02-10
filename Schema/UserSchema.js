@@ -12,27 +12,34 @@ const UserSchema = new Schema(
       type: String,
       required: true,
     },
-    // 用户类型
-    type: {
+    // 用户头像
+    avatar: {
       type: String,
-      default: "user",
+      required: false,
+      default: "../static/imgs/avatar.gif",
     },
+    email: {
+      type: String,
+      required: false,
+    },
+    // 用户类型
+    // type: {
+    //   type: String,
+    //   required: false,
+    //   default: "user",
+    // },
     // 权限
     power: {
       type: Number,
       required: false,
       default: 0,
     },
-    team: {
-      type: Array,
-      default: [],
-      required: false,
-    },
-    demand: {
-      type: Array,
-      default: [],
-      required: false,
-    },
+    // 创建日期
+    createDate: {
+      type: Number,
+      required: false, //111
+      default: 0,
+    }
   },
   {
     versionKey: false,

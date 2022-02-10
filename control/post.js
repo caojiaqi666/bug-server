@@ -27,12 +27,12 @@ const login = async (ctx) => {
   let user = await UserModel.findOne({ username });
   if (!user) {
     // 如果用户名还没被使用
-      // writeCookie(ctx, username, passwd)
-      // 重定向到聊天页面
-      return (ctx.body = {
-        state: 1,
-        msg: "用户名不存在",
-      });
+    // writeCookie(ctx, username, passwd)
+    // 重定向到聊天页面
+    return (ctx.body = {
+      state: 1,
+      msg: "用户名不存在",
+    });
   } else {
     if (passwd !== user.passwd) {
       console.log("密码不对");
@@ -81,7 +81,78 @@ const register = async (ctx) => {
   }
 };
 
+const addUser = async (ctx) => {
+  const { username, password, email, power } = ctx.request.body;
+
+  let user = await UserModel.findOne({ username });
+  if (!user) {
+    // 如果用户名还没被使用
+    try {
+      let createDate = new Date();
+      let u = new UserModel({
+        username,
+        passwd: password,
+        email,
+        power,
+        createDate,
+      });
+      await u.save();
+      // writeCookie(ctx, username, passwd)
+      return (ctx.body = {
+        state: 0,
+        msg: "注册成功",
+      });
+    } catch (e) {
+      return (ctx.body = {
+        state: -1,
+        msg: "数据存储到数据库失败",
+      });
+    }
+  } else {
+    return (ctx.body = {
+      state: 1,
+      msg: "用户名已存在",
+      user,
+    });
+  }
+};
+
+const selectUser = async (ctx) => {
+  const { id, username, power, pageNum, pageSize } = ctx.request.body;
+  try {
+    let searchParams = {};
+    if (id) {
+      searchParams.id = id;
+    }
+    if (username) {
+      searchParams.username = username;
+    }
+    if (power) {
+      searchParams.power = power;
+    }
+    // 分页查询用户列表
+    let userList = await UserModel.find({ ...searchParams })
+      .skip(pageNum)
+      .limit(pageSize || 10)
+      .sort({ _id: -1 });
+    console.log("userList: ", userList);
+    return (ctx.body = {
+      state: 0,
+      msg: "查询成功",
+      total: 100,
+      userList,
+    });
+  } catch (e) {
+    console.log(e);
+    return (ctx.body = {
+      state: -1,
+      msg: "服务器错误，请稍后再试~"
+    });
+  }
+};
 module.exports = {
   login,
-  register
+  register,
+  addUser,
+  selectUser,
 };

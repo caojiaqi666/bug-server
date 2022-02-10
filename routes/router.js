@@ -13,4 +13,10 @@ r.post("/login", post.login)
 // 注册接口
 r.post("/register", post.register)
 
+// 添加用户接口
+r.post("/addUser", post.addUser)
+
+// 查询所有用户接口
+r.post("/selectUser", post.selectUser)
+
 module.exports = r;
