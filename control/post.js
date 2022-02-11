@@ -35,13 +35,12 @@ const login = async (ctx) => {
     });
   } else {
     if (passwd !== user.passwd) {
-      console.log("密码不对");
       return (ctx.body = {
         state: 2,
         msg: "密码错误",
       });
     }
-    console.log("登录成功");
+    console.log(`${user.username}登录成功`);
     // writeCookie(ctx, username, passwd)
     return (ctx.body = {
       state: 0,
@@ -135,18 +134,71 @@ const selectUser = async (ctx) => {
       .skip(pageNum)
       .limit(pageSize || 10)
       .sort({ _id: -1 });
-    console.log("userList: ", userList);
+    let total = await UserModel.count();
     return (ctx.body = {
       state: 0,
       msg: "查询成功",
-      total: 100,
+      total,
       userList,
     });
   } catch (e) {
     console.log(e);
     return (ctx.body = {
       state: -1,
-      msg: "服务器错误，请稍后再试~"
+      msg: "服务器错误，请稍后再试~",
+    });
+  }
+};
+
+const changeInfo = async (ctx) => {
+  const { _id, username, passwd, avatar, email, power } = ctx.request.body;
+  try {
+    let res = await UserModel.findByIdAndUpdate(_id, {
+      username,
+      passwd,
+      avatar,
+      email,
+      power,
+    });
+    if (res) {
+      return (ctx.body = {
+        state: 0,
+        msg: "更新成功",
+      });
+    } else {
+      return (ctx.body = {
+        state: 1,
+        msg: "更新失败",
+      });
+    }
+  } catch (err) {
+    return (ctx.body = {
+      state: -1,
+      msg: "更新失败" + err,
+    });
+  }
+};
+
+const deleteUser = async (ctx) => {
+  const { _id } = ctx.request.body;
+  try {
+    let res = await UserModel.deleteOne({ _id });
+    if (res) {
+      return (ctx.body = {
+        state: 0,
+        msg: "删除成功",
+      });
+    } else {
+      return (ctx.body = {
+        state: 1,
+        msg: "删除失败",
+      });
+    }
+  } catch (error) {
+    console.log("error: ", error);
+    return (ctx.body = {
+      state: -1,
+      msg: "服务器错误",
     });
   }
 };
@@ -155,4 +207,6 @@ module.exports = {
   register,
   addUser,
   selectUser,
+  changeInfo,
+  deleteUser,
 };
