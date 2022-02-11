@@ -26,27 +26,5 @@ r.post("/changeInfo", post.changeInfo);
 r.post("/deleteUser", post.deleteUser);
 
 // 上传图片接口
-// const multer = require("koa-multer"); //加载koa-multer模块
-// // 上传 图片
-// var storage = multer.diskStorage({
-//   //文件保存路径
-//   destination: function (req, file, cb) {
-//     cb(null, "static/imgs/");
-//   },
-//   //修改文件名称
-//   filename: function (req, file, cb) {
-//     var fileFormat = file.originalname.split(".");
-//     cb(null, Date.now() + "." + fileFormat[fileFormat.length - 1]);
-//   },
-// });
-// //加载配置
-// var upload = multer({
-//   storage: storage,
-// });
-// r.post("/upload", upload.single("file"), async (ctx, next) => {
-//   ctx.body = {
-//     filename: ctx.req.file.filename, //返回文件名
-//   };
-// });
 
 module.exports = r;
