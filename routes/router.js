@@ -27,6 +27,10 @@ r.post("/deleteUser", post.deleteUser);
 
 // 上传图片接口
 
+// 创建bug
 r.post("/createBug", post.createBug)
+
+// 查询bug
+r.post("/selectBug", post.selectBug)
 
 module.exports = r;

@@ -51,7 +51,7 @@ const BugSchema = new Schema(
       required: true,
       default: 3,
     },
-    // 状态 (0: 未开始，1：处理中，2：已解决，3：已驳回，4)
+    // 状态 (0: 未开始，1：处理中，2：已解决，3：已驳回，4: 挂起)
     status: {
       type: Number,
       required: true,

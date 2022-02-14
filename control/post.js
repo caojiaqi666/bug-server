@@ -132,7 +132,7 @@ const selectUser = async (ctx) => {
     }
     // 分页查询用户列表
     let userList = await UserModel.find({ ...searchParams })
-      .skip(pageNum)
+      .skip(pageNum || 1)
       .limit(pageSize || 10)
       .sort({ _id: -1 });
     let total = await UserModel.count();
@@ -204,7 +204,6 @@ const deleteUser = async (ctx) => {
   }
 };
 
-// 创建bug
 const createBug = async (ctx) => {
   const {
     bugType,
@@ -229,8 +228,8 @@ const createBug = async (ctx) => {
         createTime,
         title,
         content,
-        relationDemand:[],
-        relationProject:[],
+        relationDemand: [],
+        relationProject: [],
         priority,
         severity,
         // status: ,
@@ -247,7 +246,7 @@ const createBug = async (ctx) => {
         u,
       });
     } catch (e) {
-      console.log('e: ', e);
+      console.log("e: ", e);
       return (ctx.body = {
         state: -1,
         msg: "数据存储到数据库失败",
@@ -262,6 +261,55 @@ const createBug = async (ctx) => {
   }
 };
 
+const selectBug = async (ctx) => {
+  const {
+    _id,
+    submitter,
+    title,
+    priority,
+    severity,
+    status,
+    pageNum,
+    pageSize,
+  } = ctx.request.body;
+  console.log("ctx.request.body: ", ctx.request.body);
+  try {
+    let sp = {
+      _id,
+      submitter,
+      title,
+      priority,
+      severity,
+      status,
+    };
+    if (_id !== "") {sp._id = _id;}
+    if (submitter !== "") {sp.submitter = submitter;}
+    if (title !== "") {sp.title = title;}
+    if (priority !== "") {sp.priority = priority;}
+    if (severity !== "") {sp.severity = severity;}
+    if (status !== "") {sp.status = status;}
+    // 分页查询用户列表
+    let bugsList = await BugModel.find(sp)  // 有问题
+    .skip(pageNum || 1)
+    .limit(pageSize || 10)
+    .sort({ _id: -1 });
+    console.log('bugsList: ', bugsList);
+    let total = await BugModel.count();
+    return (ctx.body = {
+      state: 0,
+      msg: "查询成功",
+      total,
+      bugsList,
+    });
+  } catch (e) {
+    console.log(e);
+    return (ctx.body = {
+      state: -1,
+      msg: "服务器错误，请稍后再试~",
+    });
+  }
+};
+
 module.exports = {
   login,
   register,
@@ -270,4 +318,5 @@ module.exports = {
   changeInfo,
   deleteUser,
   createBug,
+  selectBug,
 };
