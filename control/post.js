@@ -1,4 +1,5 @@
 const UserModel = require("../model/UserModel.js");
+const BugModel = require("../model/BugModel.js");
 // require模块，模块里的代码才会执行
 
 const writeCookie = (ctx, name, pass) => {
@@ -203,8 +204,63 @@ const deleteUser = async (ctx) => {
   }
 };
 
-// 
+// 创建bug
+const createBug = async (ctx) => {
+  const {
+    bugType,
+    content,
+    priority,
+    receiver,
+    relationDemand,
+    relationProject,
+    remarks,
+    severity,
+    title,
+  } = ctx.request.body;
 
+  let bug = await BugModel.findOne({ title });
+  if (!bug) {
+    // 如果用户名还没被使用
+    try {
+      let createTime = new Date();
+      let u = new BugModel({
+        receiver: "受理人",
+        submitter: "提交人",
+        createTime,
+        title,
+        content,
+        relationDemand:[],
+        relationProject:[],
+        priority,
+        severity,
+        // status: ,
+        // fixTime: ""
+        remarks,
+        // usedTime: "",
+        bugType,
+      });
+      await u.save();
+      // writeCookie(ctx, username, passwd)
+      return (ctx.body = {
+        state: 0,
+        msg: "创建bug成功",
+        u,
+      });
+    } catch (e) {
+      console.log('e: ', e);
+      return (ctx.body = {
+        state: -1,
+        msg: "数据存储到数据库失败",
+      });
+    }
+  } else {
+    return (ctx.body = {
+      state: 1,
+      msg: "Bug名已存在",
+      bug,
+    });
+  }
+};
 
 module.exports = {
   login,
@@ -213,4 +269,5 @@ module.exports = {
   selectUser,
   changeInfo,
   deleteUser,
+  createBug,
 };

@@ -27,4 +27,6 @@ r.post("/deleteUser", post.deleteUser);
 
 // 上传图片接口
 
+r.post("/createBug", post.createBug)
+
 module.exports = r;
