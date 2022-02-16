@@ -21,14 +21,8 @@ const UserSchema = new Schema(
     email: {
       type: String,
       required: false,
-    },
-    // 用户类型
-    // type: {
-    //   type: String,
-    //   required: false,
-    //   default: "user",
-    // },
-    // 权限
+    }, 
+    // 权限   0:游客,1:普通用户,2:系统管理员
     power: {
       type: Number,
       required: false,

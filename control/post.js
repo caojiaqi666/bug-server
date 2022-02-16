@@ -2,11 +2,40 @@ const UserModel = require("../model/UserModel.js");
 const BugModel = require("../model/BugModel.js");
 // require模块，模块里的代码才会执行
 
+// 鉴权中间件
+const getUserRights = async (ctx) => {
+  let username = ctx.cookies.get("username") || null;
+  if (username) {
+    // 有cookie时
+    let user = await UserModel.find({ username });
+    if (user.length > 0) {
+      return (ctx.body = {
+        state: 0,
+        msg: "有登录态",
+        power: user.power,
+      });
+    } else {
+      return (ctx.body = {
+        state: 0,
+        msg: "查无此人",
+        power: -1,
+      });
+    }
+  } else {
+    // 没用cookie，或者cookie过期时
+    return (ctx.body = {
+      state: 5,
+      msg: "身份信息不存在或已过期",
+      power: -1,
+    });
+  }
+};
+
 const writeCookie = (ctx, name, pass) => {
   const cookieConfig = {
     domain: "localhost", // 在这个域名中生效
     path: "/",
-    maxAge: 36e5,
+    maxAge: 60 * 60 * 12 * 1000,
     httpOnly: true, // 前端是否可见
     overwrite: false, //前端不可重写
   };
@@ -28,7 +57,6 @@ const login = async (ctx) => {
   let user = await UserModel.findOne({ username });
   if (!user) {
     // 如果用户名还没被使用
-    // writeCookie(ctx, username, passwd)
     // 重定向到聊天页面
     return (ctx.body = {
       state: 1,
@@ -42,7 +70,7 @@ const login = async (ctx) => {
       });
     }
     console.log(`${user.username}登录成功`);
-    // writeCookie(ctx, username, passwd)
+    writeCookie(ctx, username, passwd);
     return (ctx.body = {
       state: 0,
       msg: "登录成功",
@@ -60,13 +88,12 @@ const register = async (ctx) => {
     try {
       let u = new UserModel({ username, passwd, online: true });
       await u.save();
-      // writeCookie(ctx, username, passwd)
-      // 重定向到聊天页面
       return (ctx.body = {
         state: 0,
         msg: "注册成功",
       });
     } catch (e) {
+      console.log("e: ", e);
       return (ctx.body = {
         state: -1,
         msg: "数据存储到数据库失败",
@@ -82,8 +109,17 @@ const register = async (ctx) => {
 };
 
 const addUser = async (ctx) => {
+  let r = await getUserRights(ctx);
+  if (r.state == 5) return r;
+  let nowUserPower = r.power;
   const { username, password, email, power } = ctx.request.body;
 
+  if (nowUserPower < 3) {
+    return (ctx.body = {
+      state: 4,
+      msg: "您没有此权限"
+    });
+  }
   let user = await UserModel.findOne({ username });
   if (!user) {
     // 如果用户名还没被使用
@@ -274,17 +310,29 @@ const selectBug = async (ctx) => {
   } = ctx.request.body;
   try {
     let sp = {};
-    if (_id !== "") {sp._id = _id;}
-    if (submitter !== "") {sp.submitter = submitter;}
-    if (title !== "") {sp.title = title;}
-    if (priority !== "") {sp.priority = priority;}
-    if (severity !== "") {sp.severity = severity;}
-    if (status !== "") {sp.status = status;}
+    if (_id !== "") {
+      sp._id = _id;
+    }
+    if (submitter !== "") {
+      sp.submitter = submitter;
+    }
+    if (title !== "") {
+      sp.title = title;
+    }
+    if (priority !== "") {
+      sp.priority = priority;
+    }
+    if (severity !== "") {
+      sp.severity = severity;
+    }
+    if (status !== "") {
+      sp.status = status;
+    }
     // 分页查询用户列表
-    let bugsList = await BugModel.find(sp)  // 有问题
-    .skip(pageNum || 1)
-    .limit(pageSize || 10)
-    .sort({ _id: -1 });
+    let bugsList = await BugModel.find(sp) // 有问题
+      .skip(pageNum || 1)
+      .limit(pageSize || 10)
+      .sort({ _id: -1 });
     let total = await BugModel.count();
     return (ctx.body = {
       state: 0,
@@ -362,5 +410,5 @@ module.exports = {
   deleteUser,
   createBug,
   selectBug,
-  deleteBug
+  deleteBug,
 };

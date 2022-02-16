@@ -1,7 +1,7 @@
 const UserModel = require("../model/UserModel")
 const login = async (ctx) => {
-  // ctx.body = "hello world!";
-  await ctx.render("login");
+  ctx.body = "hello world!";
+  // await ctx.render("login");
 };
 
 const chat = async (ctx) => {
