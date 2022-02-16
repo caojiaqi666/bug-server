@@ -272,16 +272,8 @@ const selectBug = async (ctx) => {
     pageNum,
     pageSize,
   } = ctx.request.body;
-  console.log("ctx.request.body: ", ctx.request.body);
   try {
-    let sp = {
-      _id,
-      submitter,
-      title,
-      priority,
-      severity,
-      status,
-    };
+    let sp = {};
     if (_id !== "") {sp._id = _id;}
     if (submitter !== "") {sp.submitter = submitter;}
     if (title !== "") {sp.title = title;}
@@ -293,7 +285,6 @@ const selectBug = async (ctx) => {
     .skip(pageNum || 1)
     .limit(pageSize || 10)
     .sort({ _id: -1 });
-    console.log('bugsList: ', bugsList);
     let total = await BugModel.count();
     return (ctx.body = {
       state: 0,
@@ -310,6 +301,58 @@ const selectBug = async (ctx) => {
   }
 };
 
+const deleteBug = async (ctx) => {
+  const { _id } = ctx.request.body;
+  try {
+    let res = await BugModel.deleteOne({ _id });
+    if (res) {
+      return (ctx.body = {
+        state: 0,
+        msg: "删除成功",
+      });
+    } else {
+      return (ctx.body = {
+        state: 1,
+        msg: "删除失败",
+      });
+    }
+  } catch (error) {
+    console.log("error: ", error);
+    return (ctx.body = {
+      state: -1,
+      msg: "服务器错误",
+    });
+  }
+};
+
+const changeBug = async (ctx) => {
+  const { _id, status, title, priority, severity } = ctx.request.body;
+  try {
+    let res = await BugModel.findByIdAndUpdate(_id, {
+      status,
+      title,
+      priority,
+      severity,
+    });
+    if (res) {
+      return (ctx.body = {
+        state: 0,
+        msg: "更新成功",
+      });
+    } else {
+      return (ctx.body = {
+        state: 1,
+        msg: "更新失败",
+      });
+    }
+  } catch (err) {
+    return (ctx.body = {
+      state: -1,
+      msg: "更新失败" + err,
+    });
+  }
+};
+
 module.exports = {
   login,
   register,
@@ -319,4 +362,5 @@ module.exports = {
   deleteUser,
   createBug,
   selectBug,
+  deleteBug
 };
