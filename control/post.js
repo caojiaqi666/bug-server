@@ -114,10 +114,10 @@ const addUser = async (ctx) => {
   let nowUserPower = r.power;
   const { username, password, email, power } = ctx.request.body;
 
-  if (nowUserPower < 3) {
+  if (nowUserPower < 2) {
     return (ctx.body = {
       state: 4,
-      msg: "您没有此权限"
+      msg: "您没有此权限",
     });
   }
   let user = await UserModel.findOne({ username });
@@ -154,6 +154,14 @@ const addUser = async (ctx) => {
 };
 
 const selectUser = async (ctx) => {
+  let r = await getUserRights(ctx);
+  if (r.state == 5) return r;
+  let nowUserPower = r.power;
+  if (nowUserPower < 2)
+    return (ctx.body = {
+      state: 4,
+      msg: "您没有此权限",
+    });
   const { id, username, power, pageNum, pageSize } = ctx.request.body;
   try {
     let searchParams = {};
@@ -188,6 +196,14 @@ const selectUser = async (ctx) => {
 };
 
 const changeInfo = async (ctx) => {
+  let r = await getUserRights(ctx);
+  if (r.state == 5) return r;
+  let nowUserPower = r.power;
+  if (nowUserPower < 2)
+    return (ctx.body = {
+      state: 4,
+      msg: "您没有此权限",
+    });
   const { _id, username, passwd, avatar, email, power } = ctx.request.body;
   try {
     let res = await UserModel.findByIdAndUpdate(_id, {
@@ -217,6 +233,14 @@ const changeInfo = async (ctx) => {
 };
 
 const deleteUser = async (ctx) => {
+  let r = await getUserRights(ctx);
+  if (r.state == 5) return r;
+  let nowUserPower = r.power;
+  if (nowUserPower < 2)
+    return (ctx.body = {
+      state: 4,
+      msg: "您没有此权限",
+    });
   const { _id } = ctx.request.body;
   try {
     let res = await UserModel.deleteOne({ _id });
@@ -241,6 +265,14 @@ const deleteUser = async (ctx) => {
 };
 
 const createBug = async (ctx) => {
+  let r = await getUserRights(ctx);
+  if (r.state == 5) return r;
+  let nowUserPower = r.power;
+  if (nowUserPower < 1)
+    return (ctx.body = {
+      state: 4,
+      msg: "您没有此权限",
+    });
   const {
     bugType,
     content,
@@ -298,6 +330,14 @@ const createBug = async (ctx) => {
 };
 
 const selectBug = async (ctx) => {
+  let r = await getUserRights(ctx);
+  if (r.state == 5) return r;
+  let nowUserPower = r.power;
+  if (nowUserPower < 1)
+    return (ctx.body = {
+      state: 4,
+      msg: "您没有此权限",
+    });
   const {
     _id,
     submitter,
@@ -350,6 +390,14 @@ const selectBug = async (ctx) => {
 };
 
 const deleteBug = async (ctx) => {
+  let r = await getUserRights(ctx);
+  if (r.state == 5) return r;
+  let nowUserPower = r.power;
+  if (nowUserPower < 2)
+    return (ctx.body = {
+      state: 4,
+      msg: "您没有此权限",
+    });
   const { _id } = ctx.request.body;
   try {
     let res = await BugModel.deleteOne({ _id });
@@ -374,6 +422,14 @@ const deleteBug = async (ctx) => {
 };
 
 const changeBug = async (ctx) => {
+  let r = await getUserRights(ctx);
+  if (r.state == 5) return r;
+  let nowUserPower = r.power;
+  if (nowUserPower < 1)
+    return (ctx.body = {
+      state: 4,
+      msg: "您没有此权限",
+    });
   const { _id, status, title, priority, severity } = ctx.request.body;
   try {
     let res = await BugModel.findByIdAndUpdate(_id, {

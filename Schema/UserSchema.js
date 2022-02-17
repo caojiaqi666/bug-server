@@ -22,7 +22,7 @@ const UserSchema = new Schema(
       type: String,
       required: false,
     }, 
-    // 权限   0:游客,1:普通用户,2:系统管理员
+    // 权限   0:游客,1:普通用户,2:系统管理员,3:boss
     power: {
       type: Number,
       required: false,
