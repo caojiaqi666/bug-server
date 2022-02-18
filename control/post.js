@@ -8,17 +8,18 @@ const getUserRights = async (ctx) => {
   if (username) {
     // 有cookie时
     let user = await UserModel.find({ username });
+    console.log("----------------------------- ", user[0]);
     if (user.length > 0) {
       return (ctx.body = {
         state: 0,
         msg: "有登录态",
-        power: user.power,
+        user: user[0],
       });
     } else {
       return (ctx.body = {
         state: 0,
         msg: "查无此人",
-        power: -1,
+        user: -1,
       });
     }
   } else {
@@ -26,7 +27,7 @@ const getUserRights = async (ctx) => {
     return (ctx.body = {
       state: 5,
       msg: "身份信息不存在或已过期",
-      power: -1,
+      user: -1,
     });
   }
 };
@@ -83,10 +84,11 @@ const register = async (ctx) => {
   const { username, passwd } = ctx.request.body;
 
   let user = await UserModel.findOne({ username });
+  let createDate = new Date();
   if (!user) {
     // 如果用户名还没被使用
     try {
-      let u = new UserModel({ username, passwd, online: true });
+      let u = new UserModel({ username, passwd, online: true, createDate });
       await u.save();
       return (ctx.body = {
         state: 0,
@@ -111,7 +113,7 @@ const register = async (ctx) => {
 const addUser = async (ctx) => {
   let r = await getUserRights(ctx);
   if (r.state == 5) return r;
-  let nowUserPower = r.power;
+  let nowUserPower = r.user.power;
   const { username, password, email, power } = ctx.request.body;
 
   if (nowUserPower < 2) {
@@ -156,7 +158,7 @@ const addUser = async (ctx) => {
 const selectUser = async (ctx) => {
   let r = await getUserRights(ctx);
   if (r.state == 5) return r;
-  let nowUserPower = r.power;
+  let nowUserPower = r.user.power;
   if (nowUserPower < 2)
     return (ctx.body = {
       state: 4,
@@ -176,8 +178,8 @@ const selectUser = async (ctx) => {
     }
     // 分页查询用户列表
     let userList = await UserModel.find({ ...searchParams })
-      .skip(pageNum || 1)
-      .limit(pageSize || 10)
+      .skip(pageNum - 1 || 0)
+      .limit(pageSize || 20)
       .sort({ _id: -1 });
     let total = await UserModel.count();
     return (ctx.body = {
@@ -198,7 +200,7 @@ const selectUser = async (ctx) => {
 const changeInfo = async (ctx) => {
   let r = await getUserRights(ctx);
   if (r.state == 5) return r;
-  let nowUserPower = r.power;
+  let nowUserPower = r.user.power;
   if (nowUserPower < 2)
     return (ctx.body = {
       state: 4,
@@ -235,7 +237,7 @@ const changeInfo = async (ctx) => {
 const deleteUser = async (ctx) => {
   let r = await getUserRights(ctx);
   if (r.state == 5) return r;
-  let nowUserPower = r.power;
+  let nowUserPower = r.user.power;
   if (nowUserPower < 2)
     return (ctx.body = {
       state: 4,
@@ -266,8 +268,9 @@ const deleteUser = async (ctx) => {
 
 const createBug = async (ctx) => {
   let r = await getUserRights(ctx);
+  console.log("r: ", r);
   if (r.state == 5) return r;
-  let nowUserPower = r.power;
+  let nowUserPower = r.user.power;
   if (nowUserPower < 1)
     return (ctx.body = {
       state: 4,
@@ -291,8 +294,8 @@ const createBug = async (ctx) => {
     try {
       let createTime = new Date();
       let u = new BugModel({
-        receiver: "受理人",
-        submitter: "提交人",
+        receiver,
+        submitter: r.user.username,
         createTime,
         title,
         content,
@@ -300,10 +303,7 @@ const createBug = async (ctx) => {
         relationProject: [],
         priority,
         severity,
-        // status: ,
-        // fixTime: ""
         remarks,
-        // usedTime: "",
         bugType,
       });
       await u.save();
@@ -332,7 +332,7 @@ const createBug = async (ctx) => {
 const selectBug = async (ctx) => {
   let r = await getUserRights(ctx);
   if (r.state == 5) return r;
-  let nowUserPower = r.power;
+  let nowUserPower = r.user.power;
   if (nowUserPower < 1)
     return (ctx.body = {
       state: 4,
@@ -369,10 +369,11 @@ const selectBug = async (ctx) => {
       sp.status = status;
     }
     // 分页查询用户列表
-    let bugsList = await BugModel.find(sp) // 有问题
-      .skip(pageNum || 1)
-      .limit(pageSize || 10)
-      .sort({ _id: -1 });
+    let bugsList = await BugModel.find(sp)
+      .skip(pageNum - 1 || 0)
+      .limit(pageSize || 20)
+      .sort({ status: -1 });
+    console.log("---------------------- ", bugsList);
     let total = await BugModel.count();
     return (ctx.body = {
       state: 0,
@@ -392,7 +393,7 @@ const selectBug = async (ctx) => {
 const deleteBug = async (ctx) => {
   let r = await getUserRights(ctx);
   if (r.state == 5) return r;
-  let nowUserPower = r.power;
+  let nowUserPower = r.user.power;
   if (nowUserPower < 2)
     return (ctx.body = {
       state: 4,
@@ -424,7 +425,7 @@ const deleteBug = async (ctx) => {
 const changeBug = async (ctx) => {
   let r = await getUserRights(ctx);
   if (r.state == 5) return r;
-  let nowUserPower = r.power;
+  let nowUserPower = r.user.power;
   if (nowUserPower < 1)
     return (ctx.body = {
       state: 4,
@@ -467,4 +468,5 @@ module.exports = {
   createBug,
   selectBug,
   deleteBug,
+  changeBug,
 };

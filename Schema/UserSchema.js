@@ -31,7 +31,7 @@ const UserSchema = new Schema(
     // 创建日期
     createDate: {
       type: Number,
-      required: false, //111
+      required: true, 
       default: 0,
     }
   },
