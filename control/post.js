@@ -8,7 +8,6 @@ const getUserRights = async (ctx) => {
   if (username) {
     // 有cookie时
     let user = await UserModel.find({ username });
-    console.log("----------------------------- ", user[0]);
     if (user.length > 0) {
       return (ctx.body = {
         state: 0,
@@ -458,6 +457,82 @@ const changeBug = async (ctx) => {
   }
 };
 
+const searchData = async (ctx) => {
+  let r = await getUserRights(ctx);
+  if (r.state == 5) return r;
+  let nowUserPower = r.user.power;
+  if (nowUserPower < 0)
+    return (ctx.body = {
+      state: 4,
+      msg: "您没有此权限",
+    });
+
+  try {
+    let userTotal = await UserModel.count();
+    let bugTotal = await BugModel.count();
+    let completeBugs = (await BugModel.find({ status: 2 })?.length) || 0;
+    return (ctx.body = {
+      state: 0,
+      msg: "查询成功",
+      userTotal,
+      bugTotal,
+      completeBugs,
+    });
+  } catch (err) {
+    return (ctx.body = {
+      state: -1,
+      msg: "查询失败" + err,
+    });
+  }
+};
+
+const searchLineData = async (ctx) => {
+  let r = await getUserRights(ctx);
+  if (r.state == 5) return r;
+  let nowUserPower = r.user.power;
+  if (nowUserPower < 0)
+    return (ctx.body = {
+      state: 4,
+      msg: "您没有此权限",
+    });
+
+  try {
+    let createBugs = []; // 每一天创建的bug数量
+    let completeBugs = []; // 每一天完成的bug数量
+    for (let i = 7; i >= 1; i--) {
+      stime = new Date().setHours(0, 0, 0, 0) - 86400 * i * 1000;
+      etime = new Date().setHours(0, 0, 0, 0) - 86400 * (i - 1) * 1000;
+      let createBugCount =
+        (await BugModel.find({
+          createTime: {
+            $gte: stime,
+            $lte: etime,
+          },
+        })?.count()) || 0;
+      let completeBugCount =
+        (await BugModel.find({
+          fixedTime: {
+            $gte: stime,
+            $lte: etime,
+          },
+        })?.count()) || 0;
+      createBugs.push(createBugCount);
+      completeBugs.push(completeBugCount);
+    }
+    return (ctx.body = {
+      state: 0,
+      msg: "查询成功",
+      createBugs,
+      completeBugs,
+    });
+  } catch (err) {
+    return (ctx.body = {
+      state: -1,
+      msg: "查询失败" + err,
+    });
+  }
+};
+
 module.exports = {
   login,
   register,
@@ -469,4 +544,6 @@ module.exports = {
   selectBug,
   deleteBug,
   changeBug,
+  searchData,
+  searchLineData,
 };

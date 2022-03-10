@@ -36,4 +36,10 @@ r.post("/selectBug", post.selectBug);
 // 删除bug
 r.post("/deleteBug", post.deleteBug);
 
+// 数据看板-查询数据
+r.post("/searchData", post.searchData);
+
+// 数据看板-查询折线图数据
+r.post("/searchLineData", post.searchLineData);
+
 module.exports = r;
