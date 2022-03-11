@@ -1,6 +1,7 @@
 const r = require("koa-router")();
 const get = require("../control/get");
 const post = require("../control/post");
+const upload = require("../control/upload");
 
 r.get("/", get.login);
 
@@ -25,7 +26,11 @@ r.post("/changeInfo", post.changeInfo);
 // 删除用户
 r.post("/deleteUser", post.deleteUser);
 
+// 修改本人头像
+r.post("/changeAvatar", post.changeOwnAvatar);
+
 // 上传图片接口
+r.post("/upload/imgs", upload.upload);
 
 // 创建bug
 r.post("/createBug", post.createBug);

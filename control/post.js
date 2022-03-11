@@ -328,6 +328,44 @@ const createBug = async (ctx) => {
   }
 };
 
+const changeOwnAvatar = async (ctx) => {
+  const { avatar } = ctx.request.body;
+  console.log('avatar: ', avatar);
+  let username = ctx.cookies.get("username") || null;
+  if (username) {
+    // 有cookie时
+    let user = await UserModel.find({ username });
+    if (user) {
+      let res = await UserModel.findByIdAndUpdate(user?.[0]?._id, {
+        avatar,
+      });
+      if (res) {
+        return (ctx.body = {
+          state: 0,
+          msg: "修改头像成功",
+        });
+      } else {
+        return (ctx.body = {
+          state: 4,
+          msg: "修改头像失败",
+        });
+      }
+    } else {
+      return (ctx.body = {
+        code: 0,
+        msg: "查无此人",
+      })
+    }
+  } else {
+    // 没用cookie，或者cookie过期时
+    return (ctx.body = {
+      state: 5,
+      msg: "身份信息不存在或已过期",
+      user: -1,
+    });
+  }
+};
+
 const selectBug = async (ctx) => {
   let r = await getUserRights(ctx);
   if (r.state == 5) return r;
@@ -540,6 +578,7 @@ module.exports = {
   selectUser,
   changeInfo,
   deleteUser,
+  changeOwnAvatar,
   createBug,
   selectBug,
   deleteBug,
