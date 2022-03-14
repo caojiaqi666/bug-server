@@ -334,12 +334,13 @@ const changeOwnAvatar = async (ctx) => {
   let username = ctx.cookies.get("username") || null;
   if (username) {
     // 有cookie时
-    let user = await UserModel.find({ username });
-    if (user) {
-      let res = await UserModel.findByIdAndUpdate(user?.[0]?._id, {
+    let userId = await UserModel.findOne({ username });
+    if (userId) {
+      let res = await UserModel.updateOne({username}, {
         avatar,
       });
       if (res) {
+        console.log('res: ', res);
         return (ctx.body = {
           state: 0,
           msg: "修改头像成功",
