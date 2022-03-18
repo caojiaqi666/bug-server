@@ -340,10 +340,12 @@ const changeOwnAvatar = async (ctx) => {
         avatar,
       });
       if (res) {
-        console.log('res: ', res);
+        let userAfter = await UserModel.findOne({ username });
+        console.log('userAfter: ', userAfter);
         return (ctx.body = {
           state: 0,
           msg: "修改头像成功",
+          userInfo: userAfter
         });
       } else {
         return (ctx.body = {
