@@ -1,50 +1,62 @@
 const r = require("koa-router")();
-const get = require("../control/get");
-const post = require("../control/post");
 const upload = require("../control/upload");
-
-r.get("/", get.login);
-
-// 验证cookie后跳转
-// r.get("/chat", get.keepLog, get.chat);
+const userPost = require("../control/user/index");
+const bugPost = require("../control/bug/index");
+const boardPost = require("../control/dataBoard/index");
+const projectPost = require("../control/project/index");
 
 // 首页登录验证接口
-r.post("/login", post.login);
+r.post("/login", userPost.login);
 
 // 注册接口
-r.post("/register", post.register);
+r.post("/register", userPost.register);
 
 // 添加用户接口
-r.post("/addUser", post.addUser);
+r.post("/addUser", userPost.addUser);
 
 // 查询所有用户接口
-r.post("/selectUser", post.selectUser);
+r.post("/selectUser", userPost.selectUser);
 
 // 修改用户信息
-r.post("/changeInfo", post.changeInfo);
+r.post("/changeInfo", userPost.changeInfo);
 
 // 删除用户
-r.post("/deleteUser", post.deleteUser);
+r.post("/deleteUser", userPost.deleteUser);
 
 // 修改本人头像
-r.post("/changeAvatar", post.changeOwnAvatar);
+r.post("/changeAvatar", userPost.changeOwnAvatar);
 
 // 上传图片接口
 r.post("/upload/imgs", upload.upload);
 
 // 创建bug
-r.post("/createBug", post.createBug);
+r.post("/createBug", bugPost.createBug);
 
 // 查询bug
-r.post("/selectBug", post.selectBug);
+r.post("/selectBug", bugPost.selectBug);
 
 // 删除bug
-r.post("/deleteBug", post.deleteBug);
+r.post("/deleteBug", bugPost.deleteBug);
+
+// 更新bug信息
+r.post("/updateBug", bugPost.changeBug);
+
+// 创建项目
+r.post("/createProject", projectPost.createProject);
+
+// 删除项目
+r.post("/deleteProject", projectPost.deleteProject);
+
+// 修改项目
+r.post("/changeProject", projectPost.changeProject);
+
+// 查找项目
+r.post("/selectProject", projectPost.selectProject);
 
 // 数据看板-查询数据
-r.post("/searchData", post.searchData);
+r.post("/searchData", boardPost.searchData);
 
 // 数据看板-查询折线图数据
-r.post("/searchLineData", post.searchLineData);
+r.post("/searchLineData", boardPost.searchLineData);
 
 module.exports = r;
