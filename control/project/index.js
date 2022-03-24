@@ -93,8 +93,18 @@ const selectProject = async (ctx) => {
 
   const { _id, projectName, state, pageNum, pageSize } = ctx.request.body;
   try {
+    let sp = {};
+    if (_id) {
+      sp._id = _id;
+    }
+    if (projectName) {
+      sp.projectName = projectName;
+    }
+    if (state) {
+      sp.state = state;
+    }
     // 分页查询用户列表
-    let projectList = await ProjectModel.find({ _id, projectName, state })
+    let projectList = await ProjectModel.find(sp)
       .skip(pageNum - 1 || 0)
       .limit(pageSize || 20);
     console.log("---------------------- ", projectList);
