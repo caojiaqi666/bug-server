@@ -107,7 +107,6 @@ const selectProject = async (ctx) => {
     let projectList = await ProjectModel.find(sp)
       .skip(pageNum - 1 || 0)
       .limit(pageSize || 20);
-    console.log("---------------------- ", projectList);
     let total = await ProjectModel.count();
     return (ctx.body = {
       state: 0,

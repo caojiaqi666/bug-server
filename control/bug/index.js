@@ -135,22 +135,22 @@ const selectBug = async (ctx) => {
   } = ctx.request.body;
   try {
     let sp = {};
-    if (_id !== "") {
+    if (_id) {
       sp._id = _id;
     }
-    if (submitter !== "") {
+    if (submitter) {
       sp.submitter = submitter;
     }
-    if (title !== "") {
+    if (title) {
       sp.title = title;
     }
-    if (priority !== "") {
+    if (priority) {
       sp.priority = priority;
     }
-    if (severity !== "") {
+    if (severity) {
       sp.severity = severity;
     }
-    if (status !== "") {
+    if (status) {
       sp.status = status;
     }
     // 分页查询用户列表
