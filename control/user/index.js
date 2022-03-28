@@ -108,6 +108,76 @@ const register = async (ctx) => {
   }
 };
 
+const changePwd = async (ctx) => {
+  let username = ctx.cookies.get("username") || null;
+  try {
+    if (username) {
+      let { oldpasswd, newpasswd } = ctx.request.body;
+
+      let l = await UserModel.find({ username });
+      let user = l[0];
+      if (oldpasswd == user.passwd) {
+        let res = await UserModel.findByIdAndUpdate(user._id, {
+          passwd: newpasswd,
+        });
+        return (ctx.body = {
+          state: 0,
+          msg: "修改成功",
+        });
+      } else {
+        return (ctx.body = {
+          state: 2,
+          msg: "旧密码有误",
+        });
+      }
+    } else {
+      // 没用cookie，或者cookie过期时
+      return (ctx.body = {
+        state: 5,
+        msg: "身份信息不存在或已过期",
+        user: -1,
+      });
+    }
+  } catch (err) {
+    return (ctx.body = {
+      state: 4,
+      msg: err || "服务器异常",
+    });
+  }
+};
+
+const changeEmail = async (ctx) => {
+  let username = ctx.cookies.get("username") || null;
+  try {
+    if (username) {
+      let { email } = ctx.request.body;
+
+      let l = await UserModel.find({ username });
+      let user = l[0];
+      let res = await UserModel.findByIdAndUpdate(user._id, {
+        email,
+      });
+      console.log("res: ", res);
+      return (ctx.body = {
+        state: 0,
+        msg: "修改成功",
+      });
+    } else {
+      // 没用cookie，或者cookie过期时
+      return (ctx.body = {
+        state: 5,
+        msg: "身份信息不存在或已过期",
+        user: -1,
+      });
+    }
+  } catch (err) {
+    return (ctx.body = {
+      state: 4,
+      msg: err || "服务器异常",
+    });
+  }
+};
+
 const addUser = async (ctx) => {
   let r = await getUserRights(ctx);
   if (r.state == 5) return r;
@@ -264,25 +334,27 @@ const deleteUser = async (ctx) => {
   }
 };
 
-
 const changeOwnAvatar = async (ctx) => {
   const { avatar } = ctx.request.body;
-  console.log('avatar: ', avatar);
+  console.log("avatar: ", avatar);
   let username = ctx.cookies.get("username") || null;
   if (username) {
     // 有cookie时
     let userId = await UserModel.findOne({ username });
     if (userId) {
-      let res = await UserModel.updateOne({username}, {
-        avatar,
-      });
+      let res = await UserModel.updateOne(
+        { username },
+        {
+          avatar,
+        }
+      );
       if (res) {
         let userAfter = await UserModel.findOne({ username });
-        console.log('userAfter: ', userAfter);
+        console.log("userAfter: ", userAfter);
         return (ctx.body = {
           state: 0,
           msg: "修改头像成功",
-          userInfo: userAfter
+          userInfo: userAfter,
         });
       } else {
         return (ctx.body = {
@@ -294,7 +366,7 @@ const changeOwnAvatar = async (ctx) => {
       return (ctx.body = {
         code: 0,
         msg: "查无此人",
-      })
+      });
     }
   } else {
     // 没用cookie，或者cookie过期时
@@ -306,13 +378,14 @@ const changeOwnAvatar = async (ctx) => {
   }
 };
 
-
 module.exports = {
   login,
   register,
+  changePwd,
+  changeEmail,
   addUser,
   selectUser,
   changeInfo,
   deleteUser,
-  changeOwnAvatar
+  changeOwnAvatar,
 };

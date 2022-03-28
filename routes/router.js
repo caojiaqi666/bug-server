@@ -11,6 +11,12 @@ r.post("/login", userPost.login);
 // 注册接口
 r.post("/register", userPost.register);
 
+// 修改密码
+r.post("/changePwd", userPost.changePwd);
+
+// 修改邮箱
+r.post("/changeEmail", userPost.changeEmail);
+
 // 添加用户接口
 r.post("/addUser", userPost.addUser);
 
