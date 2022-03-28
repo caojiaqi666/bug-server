@@ -1,5 +1,7 @@
 const UserModel = require("../../model/UserModel.js");
 const BugModel = require("../../model/BugModel.js");
+const sendEmail = require("../../email/index");
+const moment = require("moment");
 // require模块，模块里的代码才会执行
 
 // 鉴权中间件
@@ -52,8 +54,8 @@ const writeCookie = (ctx, name, pass) => {
 };
 
 const createBug = async (ctx) => {
+  let username = ctx.cookies.get("username") || null;
   let r = await getUserRights(ctx);
-  console.log("r: ", r);
   if (r.state == 5) return r;
   let nowUserPower = r.user.power;
   if (nowUserPower < 1)
@@ -76,6 +78,8 @@ const createBug = async (ctx) => {
   if (!bug) {
     // 如果用户名还没被使用
     try {
+      let l = await UserModel.find({ username });
+      let user = l[0];
       let createTime = new Date();
       let u = new BugModel({
         receiver,
@@ -90,7 +94,19 @@ const createBug = async (ctx) => {
         bugType,
       });
       await u.save();
-      // writeCookie(ctx, username, passwd)
+
+      let r = await UserModel.find({ username: receiver });
+      let receiverEmail = r?.[0]?.email;
+      let dateText = moment(+createTime).format("YYYY年MM月DD日 HH:mm");
+      await sendEmail({
+        to: receiverEmail,
+        title,
+        relationProject,
+        createTime: dateText,
+        submitter: user?.username,
+        url: "http://localhost:8080/bug/myTask",
+      });
+
       return (ctx.body = {
         state: 0,
         msg: "创建bug成功",
