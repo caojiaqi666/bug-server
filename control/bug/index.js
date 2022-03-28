@@ -66,7 +66,6 @@ const createBug = async (ctx) => {
     content,
     priority,
     receiver,
-    relationDemand,
     relationProject,
     remarks,
     severity,
@@ -84,8 +83,7 @@ const createBug = async (ctx) => {
         createTime,
         title,
         content,
-        relationDemand: [],
-        relationProject: [],
+        relationProject,
         priority,
         severity,
         remarks,
@@ -123,54 +121,62 @@ const selectBug = async (ctx) => {
       state: 4,
       msg: "您没有此权限",
     });
-  const {
-    _id,
-    submitter,
-    title,
-    priority,
-    severity,
-    status,
-    pageNum,
-    pageSize,
-  } = ctx.request.body;
+  let username = ctx.cookies.get("username") || null;
   try {
-    let sp = {};
-    if (_id) {
-      sp._id = _id;
+    if (username) {
+      const {
+        _id,
+        submitter,
+        title,
+        priority,
+        severity,
+        status,
+        receiver,
+        pageNum,
+        pageSize,
+      } = ctx.request.body;
+      let sp = {};
+      if (_id) {
+        sp._id = _id;
+      }
+      if (submitter) {
+        sp.submitter = submitter;
+      }
+      if (title) {
+        sp.title = title;
+      }
+      if (priority) {
+        sp.priority = priority;
+      }
+      if (severity) {
+        sp.severity = severity;
+      }
+      if (status) {
+        sp.status = status;
+      }
+      if (receiver) {
+        sp.receiver = receiver;
+      }
+      if (submitter) {
+        sp.submitter = submitter;
+      }
+      // 分页查询用户列表
+      let bugsList = await BugModel.find(sp)
+        .skip(pageNum - 1 || 0)
+        .limit(pageSize || 20)
+        .sort({ status: -1 });
+      let total = await BugModel.count();
+      return (ctx.body = {
+        state: 0,
+        msg: "查询成功",
+        total,
+        bugsList,
+      });
     }
-    if (submitter) {
-      sp.submitter = submitter;
-    }
-    if (title) {
-      sp.title = title;
-    }
-    if (priority) {
-      sp.priority = priority;
-    }
-    if (severity) {
-      sp.severity = severity;
-    }
-    if (status) {
-      sp.status = status;
-    }
-    // 分页查询用户列表
-    let bugsList = await BugModel.find(sp)
-      .skip(pageNum - 1 || 0)
-      .limit(pageSize || 20)
-      .sort({ status: -1 });
-    console.log("---------------------- ", bugsList);
-    let total = await BugModel.count();
-    return (ctx.body = {
-      state: 0,
-      msg: "查询成功",
-      total,
-      bugsList,
-    });
-  } catch (e) {
-    console.log(e);
+  } catch (err) {
     return (ctx.body = {
       state: -1,
-      msg: "服务器错误，请稍后再试~",
+      msg: err || "服务器异常",
     });
   }
 };

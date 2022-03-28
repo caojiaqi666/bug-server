@@ -28,16 +28,16 @@ const BugSchema = new Schema(
       required: false,
     },
     // 关联需求
-    relationDemand: {
-      type: Array,
-      required: false, // 后面要改为true
-      default: [],
-    },
+    // relationDemand: {
+    //   type: Array,
+    //   required: false, // 后面要改为true
+    //   default: [],
+    // },
     // 关联项目
     relationProject: {
-      type: Array,
-      required: false, //
-      default: [],
+      type: String,
+      required: true, 
+      default: "",
     },
     // 优先级 (0最高，0,1,2,3)
     priority: {
