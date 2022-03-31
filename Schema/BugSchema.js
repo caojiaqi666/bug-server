@@ -78,6 +78,11 @@ const BugSchema = new Schema(
       required: false,
       default: 0,
     },
+    comments: {
+      type: Array,
+      required: false,
+      default: []
+    }
   },
   {
     versionKey: false,

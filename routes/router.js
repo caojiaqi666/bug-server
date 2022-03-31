@@ -44,6 +44,9 @@ r.post("/selectBug", bugPost.selectBug);
 // 删除bug
 r.post("/deleteBug", bugPost.deleteBug);
 
+// 修改bug
+r.post("/changeBug", bugPost.changeBug);
+
 // 更新bug信息
 r.post("/updateBug", bugPost.changeBug);
 

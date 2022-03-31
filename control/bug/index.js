@@ -83,7 +83,7 @@ const createBug = async (ctx) => {
       let createTime = new Date();
       let u = new BugModel({
         receiver,
-        submitter: r.user.username,
+        submitter: user?.username,
         createTime,
         title,
         content,
@@ -95,17 +95,17 @@ const createBug = async (ctx) => {
       });
       await u.save();
 
-      let r = await UserModel.find({ username: receiver });
-      let receiverEmail = r?.[0]?.email;
-      let dateText = moment(+createTime).format("YYYY年MM月DD日 HH:mm");
-      await sendEmail({
-        to: receiverEmail,
-        title,
-        relationProject,
-        createTime: dateText,
-        submitter: user?.username,
-        url: "http://localhost:8080/bug/myTask",
-      });
+      // let r = await UserModel.find({ username: receiver });
+      // let receiverEmail = r?.[0]?.email;
+      // let dateText = moment(+createTime).format("YYYY年MM月DD日 HH:mm");
+      // await sendEmail({
+      //   to: receiverEmail,
+      //   title,
+      //   relationProject,
+      //   createTime: dateText,
+      //   submitter: user?.username,
+      //   url: "http://localhost:8080/bug/myTask",
+      // });
 
       return (ctx.body = {
         state: 0,
@@ -180,7 +180,7 @@ const selectBug = async (ctx) => {
       let bugsList = await BugModel.find(sp)
         .skip(pageNum - 1 || 0)
         .limit(pageSize || 20)
-        .sort({ status: -1 });
+        .sort({ status: 1 });
       let total = await BugModel.count();
       return (ctx.body = {
         state: 0,
@@ -233,28 +233,85 @@ const changeBug = async (ctx) => {
   let r = await getUserRights(ctx);
   if (r.state == 5) return r;
   let nowUserPower = r.user.power;
-  if (nowUserPower < 1)
+  if (nowUserPower < 3)
     return (ctx.body = {
       state: 4,
       msg: "您没有此权限",
     });
+
+  let username = ctx.cookies.get("username") || null;
+
   const { _id, status, title, priority, severity } = ctx.request.body;
   try {
-    let res = await BugModel.findByIdAndUpdate(_id, {
-      status,
-      title,
-      priority,
-      severity,
-    });
-    if (res) {
-      return (ctx.body = {
-        state: 0,
-        msg: "更新成功",
-      });
+    if (username) {
+      let user = await UserModel.find({ username });
+      let bug = await BugModel.find({ _id });
+      let u = user?.[0];
+      let b = bug?.[0];
+      let date = new Date();
+      let dateText = moment(+date).format("YYYY年MM月DD日 HH:mm");
+      let fixedTime;
+
+      let history = b?.comments || [];
+      if (username == b?.receiver || username == b?.submitter) {
+
+        if (status == 1) {
+          history.push({
+            user: username,
+            info: `${username}在${dateText}领取了任务`,
+            date,
+          });
+        } else if (status == 2) {
+          fixedTime = date;
+          history.push({
+            user: username,
+            info: `${username}在${dateText}完成了任务`,
+            date,
+          });
+        } else if (status == 3) {
+          history.push({
+            user: username,
+            info: `${username}在${dateText}驳回了任务`,
+            date,
+          });
+        } else {
+          history.push({
+            user: username,
+            info: `${username}在${dateText}挂起了任务`,
+            date,
+          });
+        }
+        let res = await BugModel.findByIdAndUpdate(_id, {
+          status,
+          title,
+          priority,
+          severity,
+          comments: history,
+          fixedTime,
+        });
+        if (res) {
+          return (ctx.body = {
+            state: 0,
+            msg: "更新成功",
+          });
+        } else {
+          return (ctx.body = {
+            state: 1,
+            msg: "更新失败",
+          });
+        }
+      } else {
+        return (ctx.body = {
+          state: 4,
+          msg: "只可更改本人创建或者受理的需求",
+        });
+      }
     } else {
+      // 没用cookie，或者cookie过期时
       return (ctx.body = {
-        state: 1,
-        msg: "更新失败",
+        state: 5,
+        msg: "身份信息不存在或已过期",
+        user: -1,
       });
     }
   } catch (err) {
