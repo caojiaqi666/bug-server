@@ -37,7 +37,7 @@ app.use(async (ctx, next) => {
 app
   .use(session(CONFIG, app))
   // 加载静态资源模块
-  .use(koaStatic(resolve(__dirname, "static/avatar")));
+  .use(koaStatic(resolve(__dirname, "public")));
 // 加载post请求数据解析模块
 app
   .use(
