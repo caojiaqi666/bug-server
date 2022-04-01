@@ -181,7 +181,8 @@ const selectBug = async (ctx) => {
         .skip(pageNum - 1 || 0)
         .limit(pageSize || 20)
         .sort({ status: 1 });
-      let total = await BugModel.count();
+      let res = await BugModel.find(sp);
+      let total = res?.length || 0;
       return (ctx.body = {
         state: 0,
         msg: "查询成功",
@@ -251,10 +252,10 @@ const changeBug = async (ctx) => {
       let date = new Date();
       let dateText = moment(+date).format("YYYY年MM月DD日 HH:mm");
       let fixedTime;
+      let usedTime;
 
-      let history = b?.comments || [];
+      let history = [...b.comments];
       if (username == b?.receiver || username == b?.submitter) {
-
         if (status == 1) {
           history.push({
             user: username,
@@ -263,6 +264,7 @@ const changeBug = async (ctx) => {
           });
         } else if (status == 2) {
           fixedTime = date;
+          usedTime = fixedTime - date;
           history.push({
             user: username,
             info: `${username}在${dateText}完成了任务`,
@@ -288,6 +290,7 @@ const changeBug = async (ctx) => {
           severity,
           comments: history,
           fixedTime,
+          usedTime,
         });
         if (res) {
           return (ctx.body = {
