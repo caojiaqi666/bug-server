@@ -8,6 +8,9 @@ const projectPost = require("../control/project/index");
 // 首页登录验证接口
 r.post("/login", userPost.login);
 
+// 退出登录接口
+r.post("/loginout", userPost.loginout);
+
 // 注册接口
 r.post("/register", userPost.register);
 

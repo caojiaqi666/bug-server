@@ -78,6 +78,22 @@ const login = async (ctx) => {
   }
 };
 
+const loginout = async (ctx) => {
+  try {
+    writeCookie(ctx, null, null)
+    return (ctx.body = {
+      state: 0,
+      msg: "退出成功",
+    });
+  } catch (e) {
+    console.log("e: ", e);
+    return (ctx.body = {
+      state: -1,
+      msg: "未知错误" + e,
+    });
+  }
+};
+
 const register = async (ctx) => {
   const { username, passwd } = ctx.request.body;
 
@@ -338,9 +354,11 @@ const changeOwnAvatar = async (ctx) => {
   const { avatar } = ctx.request.body;
   console.log("avatar: ", avatar);
   let username = ctx.cookies.get("username") || null;
+  console.log('username: ', username);
   if (username) {
     // 有cookie时
     let userId = await UserModel.findOne({ username });
+    console.log('userId: ', userId);
     if (userId) {
       let res = await UserModel.updateOne(
         { username },
@@ -380,6 +398,7 @@ const changeOwnAvatar = async (ctx) => {
 
 module.exports = {
   login,
+  loginout,
   register,
   changePwd,
   changeEmail,

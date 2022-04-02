@@ -1,5 +1,6 @@
 const { Schema } = require("./config");
 
+let defaultAva = Math.floor(Math.random(0, 1) * 12 + 1);
 const UserSchema = new Schema(
   {
     // 用户名
@@ -16,12 +17,12 @@ const UserSchema = new Schema(
     avatar: {
       type: String,
       required: false,
-      default: "../static/imgs/avatar.gif",
+      default: `http://localhost:9527/avatar/default${defaultAva}.png`,
     },
     email: {
       type: String,
       required: false,
-    }, 
+    },
     // 权限   0:游客,1:普通用户,2:系统管理员,3:boss
     power: {
       type: Number,
@@ -31,9 +32,9 @@ const UserSchema = new Schema(
     // 创建日期
     createDate: {
       type: Number,
-      required: true, 
+      required: true,
       default: 0,
-    }
+    },
   },
   {
     versionKey: false,
