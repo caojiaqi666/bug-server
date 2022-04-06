@@ -4,6 +4,7 @@ const userPost = require("../control/user/index");
 const bugPost = require("../control/bug/index");
 const boardPost = require("../control/dataBoard/index");
 const projectPost = require("../control/project/index");
+const systemPost = require("../control/system/index");
 
 // 首页登录验证接口
 r.post("/login", userPost.login);
@@ -70,5 +71,11 @@ r.post("/searchData", boardPost.searchData);
 
 // 数据看板-查询折线图数据
 r.post("/searchLineData", boardPost.searchLineData);
+
+// 获取用户ip
+r.post("/postClientIp", systemPost.postClientIp);
+
+// 查询ip列表
+r.post("/searchIpList", systemPost.searchIpList);
 
 module.exports = r;
