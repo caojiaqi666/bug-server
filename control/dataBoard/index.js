@@ -42,7 +42,7 @@ const searchData = async (ctx) => {
   try {
     let userTotal = await UserModel.count();
     let bugTotal = await BugModel.count();
-    let completeBugs = (await BugModel.find({ status: 2 })?.length) || 0;
+    let completeBugs = (await BugModel.find({ status: 2 })?.count()) || 0;
     return (ctx.body = {
       state: 0,
       msg: "查询成功",

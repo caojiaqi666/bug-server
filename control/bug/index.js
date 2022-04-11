@@ -231,14 +231,14 @@ const deleteBug = async (ctx) => {
 };
 
 const changeBug = async (ctx) => {
-  let r = await getUserRights(ctx);
-  if (r.state == 5) return r;
-  let nowUserPower = r.user.power;
-  if (nowUserPower < 3)
-    return (ctx.body = {
-      state: 4,
-      msg: "您没有此权限",
-    });
+  // let r = await getUserRights(ctx);
+  // if (r.state == 5) return r;
+  // let nowUserPower = r.user.power;
+  // if (nowUserPower < 3)
+  //   return (ctx.body = {
+  //     state: 4,
+  //     msg: "您没有此权限",
+  //   });
 
   let username = ctx.cookies.get("username") || null;
 
